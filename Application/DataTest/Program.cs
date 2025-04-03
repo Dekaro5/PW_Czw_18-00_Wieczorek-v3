@@ -13,5 +13,14 @@ namespace DataTest
 
             Assert.AreEqual(20, ball.Diameter);
         }
+
+        [TestMethod]
+        
+        public void TestBadSize()
+        {
+            var ball = new Ball();
+            ball.Diameter = 20;
+            Assert.AreNotEqual(30, ball.Diameter);
+        }
     }
 }

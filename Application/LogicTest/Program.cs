@@ -28,5 +28,15 @@ namespace BusinessLogicTest
             Assert.AreEqual(10, ball.X);
             Assert.AreEqual(20, ball.Y);
         }
+
+        [TestMethod]
+
+        public void TestBadStartingCoordinates()
+        {
+            var service = new BallService();
+            var ball = service.CreateBall(20, 10);
+            Assert.AreNotEqual(10, ball.X);
+            Assert.AreNotEqual(20, ball.Y);
+        }
     }
 }
