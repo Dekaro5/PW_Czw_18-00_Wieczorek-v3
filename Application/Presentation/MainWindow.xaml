@@ -1,6 +1,33 @@
 ﻿<Window x:Class="Presentation.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Ball Simulation" Height="350" Width="550">
-    <Canvas Name="TableCanvas" Width="500" Height="300" Background="Green" Margin="10"/>
+        Title="Symulacja Kul" Height="400" Width="600">
+    <Grid>
+        <!-- Przestrzeń do poruszania się kul -->
+        <Canvas x:Name="BallCanvas" Background="Green" 
+        Width="500" Height="300" HorizontalAlignment="Center" VerticalAlignment="Top">
+            <ItemsControl ItemsSource="{Binding Balls}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Ellipse Width="{Binding Diameter}" Height="{Binding Diameter}" 
+                         Fill="Red" Canvas.Left="{Binding X}" Canvas.Top="{Binding Y}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Canvas>
+
+        <!-- Kontrolki sterujące -->
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10">
+            <TextBox x:Name="BallCountInput" Width="100" Margin="5" 
+                     Text="{Binding BallCount, UpdateSourceTrigger=PropertyChanged}" />
+            <Button Content="Utwórz kule" Command="{Binding CreateBallsCommand}" Width="100" Margin="5"/>
+            <Button Content="Start" Command="{Binding StartCommand}" Width="100" Margin="5"/>
+            <Button Content="Zakończ" Click="OnExitClick" Width="100" Margin="5"/>
+        </StackPanel>
+    </Grid>
 </Window>
