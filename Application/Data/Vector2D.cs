@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Data.Models
 {
-    public struct Vector2D
+    public class Vector2D
     {
         public double X { get; set; }
         public double Y { get; set; }
@@ -16,9 +16,11 @@ namespace Data.Models
         public Vector2D Normalize()
         {
             var length = Length;
-            if (length == 0) return new Vector2D { X = 0, Y = 0 };
-            return new Vector2D { X = X / length, Y = Y / length };
+            return length > 0 ? new Vector2D { X = X / length, Y = Y / length } : this;
         }
+
+        public Vector2D InvertX() => new Vector2D { X = -X, Y = Y };
+        public Vector2D InvertY() => new Vector2D { X = X, Y = -Y };
     }
 }
 

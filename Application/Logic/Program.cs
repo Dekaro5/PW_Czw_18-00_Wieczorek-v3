@@ -1,49 +1,41 @@
-﻿using Data.Models;
-using BusinessLogic.Abstractions;
+﻿using BusinessLogic.Abstractions;
+using Data.Models;
 
-namespace BusinessLogic.Services
+namespace BusinessLogic.Services;
+
+public class BallService : IBallService
 {
-    public class BallService : IBallService
+    private readonly Random _random = new();
+
+    public IBall CreateBall(double x, double y)
     {
-        public IBall CreateBall(double x, double y)
+        Console.WriteLine($"Creating ball at ({x}, {y})");
+        return new Ball
         {
-            return new Ball
+            X = x,
+            Y = y,
+            Velocity = new Vector2D
             {
-                X = x,
-                Y = y,
-                Diameter = 20,
-                Velocity = new Vector2D { X = 2, Y = 1.5 } // przykładowa prędkość
-            };
+                X = _random.NextDouble() * 2 - 1,
+                Y = _random.NextDouble() * 2 - 1
+            }
+        };
+    }
+
+    public void UpdatePosition(IBall ball, double tableWidth, double tableHeight)
+    {
+        ball.X += ball.Velocity.X;
+        ball.Y += ball.Velocity.Y;
+
+        if (ball.X <= 0 || ball.X + ball.Diameter >= tableWidth)
+        {
+            ball.Velocity = ball.Velocity.InvertX();
         }
 
-        public void UpdatePosition(IBall ball, double tableWidth, double tableHeight)
+        if (ball.Y <= 0 || ball.Y + ball.Diameter >= tableHeight)
         {
-            // Aktualizacja pozycji
-            ball.X += ball.Velocity.X;
-            ball.Y += ball.Velocity.Y;
-
-            // Ograniczenie ruchu
-            if (ball.X <= 0)
-            {
-                ball.X = 0;
-                ball.Velocity = new Vector2D { X = 0, Y = ball.Velocity.Y };
-            }
-            else if (ball.X + ball.Diameter >= tableWidth)
-            {
-                ball.X = tableWidth - ball.Diameter;
-                ball.Velocity = new Vector2D { X = 0, Y = ball.Velocity.Y };
-            }
-
-            if (ball.Y <= 0)
-            {
-                ball.Y = 0;
-                ball.Velocity = new Vector2D { X = ball.Velocity.X, Y = 0 };
-            }
-            else if (ball.Y + ball.Diameter >= tableHeight)
-            {
-                ball.Y = tableHeight - ball.Diameter;
-                ball.Velocity = new Vector2D { X = ball.Velocity.X, Y = 0 };
-            }
+            ball.Velocity = ball.Velocity.InvertY();
         }
     }
 }
+
