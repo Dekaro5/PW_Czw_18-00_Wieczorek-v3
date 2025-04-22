@@ -11,8 +11,6 @@ namespace Presentation
         }
 
         private void OnExitClick(object sender, RoutedEventArgs e)
-        {
-            Application.Current.Shutdown();
-        }
+            => Application.Current.Shutdown();
     }
 }

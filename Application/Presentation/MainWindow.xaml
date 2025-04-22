@@ -3,29 +3,41 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Symulacja Kul" Height="400" Width="600">
     <Grid>
-        <Canvas x:Name="BallCanvas" Background="Green" 
-                Width="500" Height="300" HorizontalAlignment="Center" VerticalAlignment="Top">
-            <ItemsControl ItemsSource="{Binding Balls}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Canvas />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Ellipse Width="{Binding Diameter}" Height="{Binding Diameter}" 
-                     Fill="Red" Canvas.Left="{Binding X}" Canvas.Top="{Binding Y}" />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Canvas>
+        <ItemsControl ItemsSource="{Binding Balls}">
+            <!-- 1. Panel jako Canvas -->
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Canvas Width="500" Height="300" Background="Green"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
 
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10">
-            <TextBox x:Name="BallCountInput" Width="100" Margin="5" 
-                     Text="{Binding BallCount, UpdateSourceTrigger=PropertyChanged}" />
-            <Button Content="Utwórz kule" Command="{Binding CreateBallsCommand}" Width="100" Margin="5"/>
-            <Button Content="Start" Command="{Binding StartCommand}" Width="100" Margin="5"/>
-            <Button Content="Zakończ" Click="OnExitClick" Width="100" Margin="5"/>
-        </StackPanel>
+            <!-- 2. Styl kontenera -->
+            <ItemsControl.ItemContainerStyle>
+                <Style TargetType="ContentPresenter">
+                    <Setter Property="Canvas.Left" Value="{Binding X}"/>
+                    <Setter Property="Canvas.Top"  Value="{Binding Y}"/>
+                </Style>
+            </ItemsControl.ItemContainerStyle>
+
+            <!-- 3. Definicja kształtu -->
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Ellipse Width="{Binding Diameter}" Height="{Binding Diameter}" Fill="Red"/>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- Przyciski rozmieszczone równomiernie -->
+        <UniformGrid Rows="1" Columns="4"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Bottom"
+                     Margin="10">
+            <TextBox Width="100"
+                     Text="{Binding BallCount, UpdateSourceTrigger=PropertyChanged}"
+                     HorizontalContentAlignment="Center"/>
+            <Button Content="Utwórz kule" Command="{Binding CreateBallsCommand}"/>
+            <Button Content="Start"       Command="{Binding StartCommand}"/>
+            <Button Content="Zakończ"     Click="OnExitClick"/>
+        </UniformGrid>
     </Grid>
 </Window>

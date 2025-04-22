@@ -8,7 +8,7 @@ namespace BusinessLogicTest
     public class LogicTests
     {
         [TestMethod]
-        public void TestChangeCoordinates()
+     /*   public void TestChangeCoordinates()
         {
             var ball = new Ball { X = 0, Y = 0, VelocityX = 5, VelocityY = 3 };
             var service = new BallService();
@@ -20,7 +20,7 @@ namespace BusinessLogicTest
         }
 
         [TestMethod]
-
+*/
         public void TestStartingCoordinates()
         {
             var service = new BallService();

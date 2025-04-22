@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Data.Models
 {
@@ -10,17 +6,14 @@ namespace Data.Models
     {
         public double X { get; set; }
         public double Y { get; set; }
-
         public double Length => Math.Sqrt(X * X + Y * Y);
 
-        public Vector2D Normalize()
-        {
-            var length = Length;
-            return length > 0 ? new Vector2D { X = X / length, Y = Y / length } : this;
-        }
+        public Vector2D Normalize() =>
+            Length > 0 
+                ? new Vector2D { X = X / Length, Y = Y / Length } 
+                : new Vector2D();
 
-        public Vector2D InvertX() => new Vector2D { X = -X, Y = Y };
-        public Vector2D InvertY() => new Vector2D { X = X, Y = -Y };
+        public Vector2D InvertX() => new() { X = -X, Y = Y };
+        public Vector2D InvertY() => new() { X = X,  Y = -Y };
     }
 }
-
