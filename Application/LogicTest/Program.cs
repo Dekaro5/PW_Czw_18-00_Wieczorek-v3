@@ -1,42 +1,71 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Data.Models;
 using BusinessLogic.Services;
+using Data.Models;
 
-namespace BusinessLogicTest
+namespace Logic.Tests
 {
     [TestClass]
-    public class LogicTests
+    public class BallServiceTests
     {
-        [TestMethod]
-     /*   public void TestChangeCoordinates()
+        private BallService _service;
+
+        [TestInitialize]
+        public void Setup()
         {
-            var ball = new Ball { X = 0, Y = 0, VelocityX = 5, VelocityY = 3 };
-            var service = new BallService();
-
-            service.UpdatePosition(ball);
-
-            Assert.AreEqual(5, ball.X);
-            Assert.AreEqual(3, ball.Y);
+            _service = new BallService();
         }
 
         [TestMethod]
-*/
-        public void TestStartingCoordinates()
+        public void SetsInitialProperties()
         {
-            var service = new BallService();
-            var ball = service.CreateBall(10, 20);
-            Assert.AreEqual(10, ball.X);
-            Assert.AreEqual(20, ball.Y);
+            var ball = _service.CreateBall(10.0, 20.0);
+
+            Assert.AreEqual(10.0, ball.X, 1e-6);
+            Assert.AreEqual(20.0, ball.Y, 1e-6);
+            Assert.AreEqual(20.0, ball.Diameter, 1e-6);
+            Assert.IsTrue(ball.Velocity.X >= -100 && ball.Velocity.X <= 100);
+            Assert.IsTrue(ball.Velocity.Y >= -100 && ball.Velocity.Y <= 100);
         }
 
         [TestMethod]
-
-        public void TestBadStartingCoordinates()
+        public void MovesBallWithoutBounce()
         {
-            var service = new BallService();
-            var ball = service.CreateBall(20, 10);
-            Assert.AreNotEqual(10, ball.X);
-            Assert.AreNotEqual(20, ball.Y);
+            var ball = _service.CreateBall(50.0, 50.0);
+            ball.Velocity = new Vector2D { X = 60.0, Y = 30.0 };
+            double tableWidth = 1000.0, tableHeight = 1000.0;
+            double initialX = ball.X, initialY = ball.Y;
+            double dt = 1.0 / 60.0;
+
+            _service.UpdatePosition(ball, tableWidth, tableHeight);
+
+            Assert.AreEqual(initialX + 60.0 * dt, ball.X, 1e-6);
+            Assert.AreEqual(initialY + 30.0 * dt, ball.Y, 1e-6);
+            Assert.AreEqual(60.0, ball.Velocity.X, 1e-6);
+            Assert.AreEqual(30.0, ball.Velocity.Y, 1e-6);
+        }
+
+        [TestMethod]
+        public void InvertsXVelocity()
+        {
+            var ball = _service.CreateBall(0.0, 50.0);
+            ball.Velocity = new Vector2D { X = -60.0, Y = 0.0 };
+
+            _service.UpdatePosition(ball, 100.0, 100.0);
+
+            Assert.AreEqual(60.0, ball.Velocity.X, 1e-6);
+            Assert.AreEqual(0.0, ball.Velocity.Y, 1e-6);
+        }
+
+        [TestMethod]
+        public void InvertsYVelocity()
+        {
+            var ball = _service.CreateBall(50.0, 0.0);
+            ball.Velocity = new Vector2D { X = 0.0, Y = -120.0 };
+
+            _service.UpdatePosition(ball, 100.0, 100.0);
+
+            Assert.AreEqual(0.0, ball.Velocity.X, 1e-6);
+            Assert.AreEqual(120.0, ball.Velocity.Y, 1e-6);
         }
     }
 }

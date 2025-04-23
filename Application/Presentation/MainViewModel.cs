@@ -15,7 +15,6 @@ namespace Presentation
         private readonly IBallService    _ballService;
         private readonly DispatcherTimer _timer;
 
-        // rozmiary Canvas:
         private const double CanvasWidth  = 500;
         private const double CanvasHeight = 300;
 
@@ -41,7 +40,6 @@ namespace Presentation
             _ballService = new BallService();
 
             CreateBallsCommand = new RelayCommand(_ => CreateBalls());
-            // Start zawsze aktywny – nie blokujemy CanExecute
             StartCommand       = new RelayCommand(_ => _timer.Start());
 
             _timer = new DispatcherTimer
@@ -67,16 +65,8 @@ namespace Presentation
         {
             foreach (var ball in Balls)
             {
-                // **PRZYWRÓCONE** logi do konsoli:
-                Console.WriteLine($"Before Update: Ball at ({ball.X:F2}, {ball.Y:F2})");
-
-                // ruch i odbicia:
                 _ballService.UpdatePosition(ball, CanvasWidth, CanvasHeight);
-
-                Console.WriteLine($"After Update:  Ball at ({ball.X:F2}, {ball.Y:F2})");
             }
-            // **UWAGA**: nie musimy tu już robić OnPropertyChanged(nameof(Balls)),
-            // bo każdy Ball przy zmianie X/Y zrobi to sam.
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

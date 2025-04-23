@@ -10,7 +10,6 @@ namespace BusinessLogic.Services
 
         public IBall CreateBall(double x, double y)
         {
-            // ustalamy średnicę i prędkość startową
             return new Ball
             {
                 X = x,
@@ -26,13 +25,11 @@ namespace BusinessLogic.Services
 
         public void UpdatePosition(IBall ball, double tableWidth, double tableHeight)
         {
-            // Zakładamy 60 FPS → dt ≈ 1/60s
             const double dt = 1.0 / 60;
 
             ball.X += ball.Velocity.X * dt;
             ball.Y += ball.Velocity.Y * dt;
 
-            // Odbicia od ścian
             if (ball.X <= 0 || ball.X + ball.Diameter >= tableWidth)
                 ball.Velocity = ball.Velocity.InvertX();
 
