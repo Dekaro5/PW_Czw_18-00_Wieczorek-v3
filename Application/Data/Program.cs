@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace Data.Models
+namespace Data
 {
     public class Ball : IBall, INotifyPropertyChanged
     {

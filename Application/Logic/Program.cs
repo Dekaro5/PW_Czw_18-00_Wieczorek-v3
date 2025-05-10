@@ -1,5 +1,5 @@
 ﻿using System;
-using Data.Models;
+using Data;
 using BusinessLogic.Abstractions;
 
 namespace BusinessLogic.Services

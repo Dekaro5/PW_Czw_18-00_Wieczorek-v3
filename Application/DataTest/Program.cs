@@ -1,5 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Data.Models;
+using Data;
 
 namespace Data.Tests
 {

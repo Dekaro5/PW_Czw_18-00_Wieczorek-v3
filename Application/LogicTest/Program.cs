@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using BusinessLogic.Services;
-using Data.Models;
+using Data;
 
 namespace Logic.Tests
 {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Data.Models
+namespace Data
 {
     public class Vector2D
     {
