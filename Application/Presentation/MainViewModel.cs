@@ -6,7 +6,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using BusinessLogic.Abstractions;
 using BusinessLogic.Services;
-using Data.Models;
+using Data;
 
 namespace Presentation
 {
