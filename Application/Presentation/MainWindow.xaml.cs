@@ -1,16 +1,16 @@
 ﻿using System.Windows;
+using PresentationViewModel;
 
-namespace Presentation
+namespace Presentation;
+
+public partial class MainWindow : Window
 {
-    public partial class MainWindow : Window
+    public MainWindow()
     {
-        public MainWindow()
-        {
-            InitializeComponent();
-            DataContext = new MainViewModel();
-        }
-
-        private void OnExitClick(object sender, RoutedEventArgs e)
-            => Application.Current.Shutdown();
+        InitializeComponent();
+        DataContext = new MainViewModel();
     }
+
+    private void OnExitClick(object sender, RoutedEventArgs e)
+     => Application.Current.Shutdown();
 }

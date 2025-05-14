@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace PresentationViewModel
-
+namespace ViewModel
 {
     public class RelayCommand : ICommand
     {
@@ -11,7 +10,7 @@ namespace PresentationViewModel
 
         public RelayCommand(Action<object> execute, Predicate<object> canExecute = null)
         {
-            _execute = execute;
+            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
             _canExecute = canExecute;
         }
 
@@ -21,10 +20,12 @@ namespace PresentationViewModel
         public void Execute(object parameter)
             => _execute(parameter);
 
-        public event EventHandler CanExecuteChanged
+        public event EventHandler CanExecuteChanged;
+
+        // Metoda do ręcznego wywołania powiadomienia o zmianie CanExecute
+        public void RaiseCanExecuteChanged()
         {
-            add => CommandManager.RequerySuggested += value;
-            remove => CommandManager.RequerySuggested -= value;
+            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 }

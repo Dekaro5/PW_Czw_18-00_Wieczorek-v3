@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35828.75 d17.13
+VisualStudioVersion = 17.13.35828.75
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data", "Data\Data.csproj", "{A2F068C8-0C50-481C-8EEB-6A2250A19FC2}"
 EndProject
@@ -11,7 +11,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataTest", "DataTest\DataTe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogicTest", "LogicTest\LogicTest.csproj", "{4A926EA3-7BA8-4872-BE0B-4BCEE54F34EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Presentation", "Presentation\Presentation.csproj", "{1BEB2727-0649-4B01-88FB-41B429A803C2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PresentationView", "Presentation\PresentationView.csproj", "{1BEB2727-0649-4B01-88FB-41B429A803C2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PresentationModel", "PresentationModel\PresentationModel.csproj", "{76F0C35E-1541-4C34-A430-CAC1F48BFF96}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{1BEB2727-0649-4B01-88FB-41B429A803C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1BEB2727-0649-4B01-88FB-41B429A803C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1BEB2727-0649-4B01-88FB-41B429A803C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76F0C35E-1541-4C34-A430-CAC1F48BFF96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76F0C35E-1541-4C34-A430-CAC1F48BFF96}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76F0C35E-1541-4C34-A430-CAC1F48BFF96}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76F0C35E-1541-4C34-A430-CAC1F48BFF96}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

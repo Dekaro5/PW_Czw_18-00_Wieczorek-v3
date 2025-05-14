@@ -9,11 +9,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Page Include="App.xaml" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\Logic\Logic.csproj" />
+	  <ProjectReference Include="..\PresentationViewModel\PresentationViewModel.csproj" />
 	</ItemGroup>
 
 </Project>

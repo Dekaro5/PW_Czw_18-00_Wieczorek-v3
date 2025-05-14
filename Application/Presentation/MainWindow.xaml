@@ -4,7 +4,7 @@
         Title="Symulacja Kul" Height="400" Width="600" ResizeMode="NoResize"
         SizeToContent="Manual">
     <Grid>
-        <ItemsControl ItemsSource="{Binding Balls}">
+        <ItemsControl ItemsSource="{Binding Model.BallService.Balls}">
             <!-- 1. Panel jako Canvas -->
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>

@@ -1,71 +1,75 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BusinessLogic.Services;
+﻿using BusinessLogic.Services;
 using Data;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Logic.Tests
+namespace BusinessLogic.Tests
 {
     [TestClass]
     public class BallServiceTests
     {
-        private BallService _service;
+        private BallService _ballService;
 
         [TestInitialize]
         public void Setup()
         {
-            _service = new BallService();
+            _ballService = new BallService(500, 300);
         }
 
         [TestMethod]
-        public void SetsInitialProperties()
+        public async Task GenerateCorrectNumberOfBalls()
         {
-            var ball = _service.CreateBall(10.0, 20.0);
+            await _ballService.CreateBalls(5);
 
-            Assert.AreEqual(10.0, ball.X, 1e-6);
-            Assert.AreEqual(20.0, ball.Y, 1e-6);
-            Assert.AreEqual(20.0, ball.Diameter, 1e-6);
-            Assert.IsTrue(ball.Velocity.X >= -100 && ball.Velocity.X <= 100);
-            Assert.IsTrue(ball.Velocity.Y >= -100 && ball.Velocity.Y <= 100);
+            Assert.AreEqual(5, _ballService.Balls.Count);
         }
 
         [TestMethod]
-        public void MovesBallWithoutBounce()
+        public async Task ShouldNotOverlapBalls()
         {
-            var ball = _service.CreateBall(50.0, 50.0);
-            ball.Velocity = new Vector2D { X = 60.0, Y = 30.0 };
-            double tableWidth = 1000.0, tableHeight = 1000.0;
-            double initialX = ball.X, initialY = ball.Y;
-            double dt = 1.0 / 60.0;
+            await _ballService.CreateBalls(10);
 
-            _service.UpdatePosition(ball, tableWidth, tableHeight);
+            var balls = _ballService.Balls;
+            for (int i = 0; i < balls.Count; i++)
+            {
+                for (int j = i + 1; j < balls.Count; j++)
+                {
+                    double dx = balls[i].X - balls[j].X;
+                    double dy = balls[i].Y - balls[j].Y;
+                    double distanceSquared = dx * dx + dy * dy;
+                    double sumDiameters = balls[i].Diameter / 2 + balls[j].Diameter / 2;
 
-            Assert.AreEqual(initialX + 60.0 * dt, ball.X, 1e-6);
-            Assert.AreEqual(initialY + 30.0 * dt, ball.Y, 1e-6);
-            Assert.AreEqual(60.0, ball.Velocity.X, 1e-6);
-            Assert.AreEqual(30.0, ball.Velocity.Y, 1e-6);
+                    Assert.IsTrue(distanceSquared >= sumDiameters * sumDiameters, "Balls are overlapping!");
+                }
+            }
         }
 
         [TestMethod]
-        public void InvertsXVelocity()
+        public async Task MoveBalls()
         {
-            var ball = _service.CreateBall(0.0, 50.0);
-            ball.Velocity = new Vector2D { X = -60.0, Y = 0.0 };
+            await _ballService.CreateBalls(1);
+            var ball = _ballService.Balls.First();
 
-            _service.UpdatePosition(ball, 100.0, 100.0);
+            double initialX = ball.X;
+            double initialY = ball.Y;
 
-            Assert.AreEqual(60.0, ball.Velocity.X, 1e-6);
-            Assert.AreEqual(0.0, ball.Velocity.Y, 1e-6);
+            _ballService.UpdateSimulationStep();
+
+            Assert.AreNotEqual(initialX, ball.X);
+            Assert.AreNotEqual(initialY, ball.Y);
         }
 
         [TestMethod]
-        public void InvertsYVelocity()
+        public async Task WallCollision()
         {
-            var ball = _service.CreateBall(50.0, 0.0);
-            ball.Velocity = new Vector2D { X = 0.0, Y = -120.0 };
+            await _ballService.CreateBalls(1, 20, 10);
+            var ball = _ballService.Balls.First();
+            ball.X = -5;
+            ball.Y = -5;
 
-            _service.UpdatePosition(ball, 100.0, 100.0);
+            _ballService.UpdateSimulationStep();
 
-            Assert.AreEqual(0.0, ball.Velocity.X, 1e-6);
-            Assert.AreEqual(120.0, ball.Velocity.Y, 1e-6);
+            Assert.IsTrue(ball.X >= 0);
+            Assert.IsTrue(ball.Y >= 0);
         }
     }
 }

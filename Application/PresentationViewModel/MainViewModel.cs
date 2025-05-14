@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Windows.Input;
 using Presentation.Models;
 
-namespace PresentationViewModel
+namespace ViewModel
 {
     public class MainViewModel : INotifyPropertyChanged
     {
@@ -12,11 +12,11 @@ namespace PresentationViewModel
         private Task _simulationTask;
         private readonly Model _model;
 
-        public Model Model => _model;
+        public Model ModelClass => _model;
 
         public MainViewModel(int initialBallCount = 10)
         {
-            _model = new Model(500, 300);
+            _model = new Model(500, 300); // Domyślne wymiary stołu
             BallCount = initialBallCount;
 
             // Komendy
@@ -38,17 +38,21 @@ namespace PresentationViewModel
             }
         }
 
+        // Komendy
         public ICommand CreateBallsCommand { get; }
         public ICommand StartCommand { get; }
         public ICommand StopCommand { get; }
 
+        // Inicjalizacja kul
         private async Task InitializeBalls(int count)
         {
             await _model.InitializeBalls(count);
         }
 
+        // Rozpoczęcie symulacji
         public async Task StartSimulation()
         {
+            // Kończy poprzednią symulację, jeśli jeszcze trwa
             if (_simulationTask != null && !_simulationTask.IsCompleted)
             {
                 _simulationCts.Cancel();
@@ -59,10 +63,14 @@ namespace PresentationViewModel
                 catch (OperationCanceledException) { }
                 finally
                 {
-                    _simulationCts?.Dispose();
+                    _simulationCts?.Dispose(); // Zwalnia zasoby
                 }
             }
 
+            // Inicjalizuj kule
+            await InitializeBalls(BallCount);
+
+            // Tworzenie i uruchamianie zadania symulacji
             _simulationCts = new CancellationTokenSource();
             CancellationToken token = _simulationCts.Token;
 
@@ -83,16 +91,19 @@ namespace PresentationViewModel
             }, token);
         }
 
+        // Aktualizacja symulacji
         public void UpdateSimulation()
         {
             _model.UpdateBalls();
         }
 
+        // Zatrzymanie symulacji
         public void StopSimulation()
         {
             _simulationCts?.Cancel();
         }
 
+        // Powiadomienie o zmianach w modelu
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged(string propertyName)
