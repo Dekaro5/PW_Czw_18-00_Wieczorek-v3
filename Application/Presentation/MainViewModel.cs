@@ -19,7 +19,6 @@ namespace PresentationViewModel
             _model = new Model(500, 300);
             BallCount = initialBallCount;
 
-            // Komendy
             CreateBallsCommand = new RelayCommand(_ => _ = InitializeBalls(BallCount));
             StartCommand = new RelayCommand(_ => _ = StartSimulation());
             StopCommand = new RelayCommand(_ => StopSimulation());

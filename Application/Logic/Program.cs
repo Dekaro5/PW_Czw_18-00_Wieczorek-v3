@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Data;
 using BusinessLogic.Abstractions;
+using System.Drawing;
 
 namespace BusinessLogic.Services
 {
@@ -29,83 +30,68 @@ namespace BusinessLogic.Services
 
         public async Task CreateBalls(int count, double defaultDiameter = 20, double defaultMass = 10)
         {
-            List<IBall> tempGeneratedBalls = await Task.Run(() =>
+            var tempGeneratedBalls = await Task.Run(() =>
             {
-                var localBallsList = new List<IBall>();
+                var list = new List<IBall>();
                 for (int i = 0; i < count; i++)
                 {
-                    bool placedSuccessfully = false;
-                    IBall newBall = null;
-                    int placementAttempts = 0;
-                    const int maxPlacementAttempts = 100;
+                    bool placed = false;
+                    int attempts = 0;
+                    const int maxAttempts = 100;
 
-                    while (!placedSuccessfully && placementAttempts < maxPlacementAttempts)
+                    while (!placed && attempts < maxAttempts)
                     {
-                        double x = _random.NextDouble() * (Width - defaultDiameter);
-                        double y = _random.NextDouble() * (Height - defaultDiameter);
-                        double velocityX = (_random.NextDouble() * 100) - 50; 
-                        double velocityY = (_random.NextDouble() * 100) - 50;
+                        double mass = (_random.NextDouble() * 100) + defaultMass;
+                        double diameter = mass / 2;
+                        double x = _random.NextDouble() * (Width - diameter);
+                        double y = _random.NextDouble() * (Height - diameter);
+                        double vx = (_random.NextDouble() * 100) - 50;
+                        double vy = (_random.NextDouble() * 100) - 50;
 
-                        newBall = new Ball(x, y, defaultDiameter, defaultMass, new Vector2D { X = velocityX, Y = velocityY });
+                        var ball = new Ball(x, y, diameter, mass, new Vector2D { X = vx, Y = vy });
 
-                        bool overlapsWithExisting = false;
-                        foreach (var existingBall in localBallsList)
+                        if (!list.Any(existing =>
                         {
-                            double dxCheck = existingBall.X - newBall.X;
-                            double dyCheck = existingBall.Y - newBall.Y;
-                            double distanceSquaredCheck = dxCheck * dxCheck + dyCheck * dyCheck;
-                            double sumDiameters = existingBall.Diameter / 2 + newBall.Diameter / 2;
-                            if (distanceSquaredCheck < sumDiameters * sumDiameters)
-                            {
-                                overlapsWithExisting = true;
-                                break;
-                            }
-                        }
-
-                        if (!overlapsWithExisting)
+                            var dx = existing.X - ball.X;
+                            var dy = existing.Y - ball.Y;
+                            var minDist = (existing.Diameter + ball.Diameter) / 2;
+                            return dx * dx + dy * dy < minDist * minDist;
+                        }))
                         {
-                            localBallsList.Add(newBall);
-                            placedSuccessfully = true;
+                            list.Add(ball);
+                            placed = true;
                         }
-                        placementAttempts++;
+                        attempts++;
                     }
                 }
-                return localBallsList;
+                return list;
             });
 
             lock (_ballsLock)
             {
                 _balls.Clear();
                 foreach (var ball in tempGeneratedBalls)
-                {
                     _balls.Add(ball);
-                }
             }
         }
 
         public void UpdateSimulationStep()
         {
-            var currentBallsSnapshot = new List<IBall>();
+            List<IBall> snapshot;
             lock (_ballsLock)
-            {
-                currentBallsSnapshot = _balls.ToList();
-            }
+                snapshot = _balls.ToList();
 
-            foreach (var ball in currentBallsSnapshot)
+            foreach (var ball in snapshot)
             {
                 ball.Move(TimeStep);
-            }
-
-            foreach (var ball in currentBallsSnapshot)
-            {
                 HandleWallCollision(ball);
             }
 
-            for (int i = 0; i < currentBallsSnapshot.Count; i++)
+            for (int i = 0; i < snapshot.Count; i++)
             {
-                for (int j = i + 1; j < currentBallsSnapshot.Count; j++)
+                for (int j = i + 1; j < snapshot.Count; j++)
                 {
-                    HandleBallPairCollision(currentBallsSnapshot[i], currentBallsSnapshot[j]);
+                    HandleBallPairCollision(snapshot[i], snapshot[j]);
                 }
             }
         }
@@ -135,36 +121,55 @@ namespace BusinessLogic.Services
             }
         }
 
-
         private void HandleBallPairCollision(IBall ball1, IBall ball2)
         {
-            var pos1 = new Vector2D { X = ball1.X, Y = ball1.Y };
-            var pos2 = new Vector2D { X = ball2.X, Y = ball2.Y };
+            double r1 = ball1.Diameter / 2;
+            double r2 = ball2.Diameter / 2;
+            double c1x = ball1.X + r1;
+            double c1y = ball1.Y + r1;
+            double c2x = ball2.X + r2;
+            double c2y = ball2.Y + r2;
 
-            Vector2D delta = pos2 - pos1;
-            double distanceSquared = delta.X * delta.X + delta.Y * delta.Y;
-            double sumRadii = (ball1.Diameter + ball2.Diameter) / 2;
+            var dx = c2x - c1x;
+            var dy = c2y - c1y;
+            double distSq = dx * dx + dy * dy;
+            double sumR = r1 + r2;
 
-            if (distanceSquared <= sumRadii * sumRadii && distanceSquared > 0)
+            if (distSq <= sumR * sumR && distSq > 0)
             {
-                double distance = Math.Sqrt(distanceSquared);
-                Vector2D normal = delta * (1.0 / distance);
-                Vector2D tangent = new Vector2D { X = -normal.Y, Y = normal.X };
+                double dist = Math.Sqrt(distSq);
+                var nx = dx / dist;
+                var ny = dy / dist;
+                var tx = -ny;
+                var ty = nx;
 
-                double dpTan1 = Vector2D.Dot(ball1.Velocity, tangent);
-                double dpTan2 = Vector2D.Dot(ball2.Velocity, tangent);
-
-                double dpNorm1 = Vector2D.Dot(ball1.Velocity, normal);
-                double dpNorm2 = Vector2D.Dot(ball2.Velocity, normal);
+                double v1n = Vector2D.Dot(ball1.Velocity, new Vector2D { X = nx, Y = ny });
+                double v1t = Vector2D.Dot(ball1.Velocity, new Vector2D { X = tx, Y = ty });
+                double v2n = Vector2D.Dot(ball2.Velocity, new Vector2D { X = nx, Y = ny });
+                double v2t = Vector2D.Dot(ball2.Velocity, new Vector2D { X = tx, Y = ty });
 
                 double m1 = ball1.Mass;
                 double m2 = ball2.Mass;
+                double newV1n = (v1n * (m1 - m2) + 2 * m2 * v2n) / (m1 + m2);
+                double newV2n = (v2n * (m2 - m1) + 2 * m1 * v1n) / (m1 + m2);
 
-                double newDpNorm1 = (dpNorm1 * (m1 - m2) + 2 * m2 * dpNorm2) / (m1 + m2);
-                double newDpNorm2 = (dpNorm2 * (m2 - m1) + 2 * m1 * dpNorm1) / (m1 + m2);
+                ball1.Velocity = new Vector2D { X = tx * v1t + nx * newV1n, Y = ty * v1t + ny * newV1n };
+                ball2.Velocity = new Vector2D { X = tx * v2t + nx * newV2n, Y = ty * v2t + ny * newV2n };
 
-                ball1.Velocity = tangent * dpTan1 + normal * newDpNorm1;
-                ball2.Velocity = tangent * dpTan2 + normal * newDpNorm2;
+                double overlap = sumR - dist;
+                if (overlap > 0)
+                {
+                    double total = m1 + m2;
+                    c1x -= nx * (overlap * (m2 / total));
+                    c1y -= ny * (overlap * (m2 / total));
+                    c2x += nx * (overlap * (m1 / total));
+                    c2y += ny * (overlap * (m1 / total));
+
+                    ball1.X = c1x - r1;
+                    ball1.Y = c1y - r1;
+                    ball2.X = c2x - r2;
+                    ball2.Y = c2y - r2;
+                }
             }
         }
 
