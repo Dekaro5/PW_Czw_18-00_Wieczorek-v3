@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Data;
 using BusinessLogic.Abstractions;
-using System.Drawing;
 
 namespace BusinessLogic.Services
 {
@@ -83,24 +82,29 @@ namespace BusinessLogic.Services
 
             foreach (var ball in snapshot)
             {
-                ball.Move(TimeStep);
-                HandleWallCollision(ball);
+                lock (_ballsLock) {
+                    ball.Move(TimeStep);
+                    HandleWallCollision(ball);
+                }
             }
 
             for (int i = 0; i < snapshot.Count; i++)
             {
-                for (int j = i + 1; j < snapshot.Count; j++)
-                {
-                    HandleBallPairCollision(snapshot[i], snapshot[j]);
+                lock (snapshot[i]) {
+                    for (int j = i + 1; j < snapshot.Count; j++)
+                    {
+                        HandleBallPairCollision(snapshot[i], snapshot[j]);
+                    }
                 }
             }
         }
+
 
         private void HandleWallCollision(IBall ball)
         {
             if (ball.X < 0)
             {
-                ball.X = 0;
+                ball.X = 0;ddd
                 ball.Velocity = new Vector2D { X = Math.Abs(ball.Velocity.X), Y = ball.Velocity.Y };
             }
             else if (ball.X + ball.Diameter > Width)
@@ -172,6 +176,5 @@ namespace BusinessLogic.Services
                 }
             }
         }
-
     }
 }
