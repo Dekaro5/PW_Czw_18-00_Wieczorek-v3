@@ -8,7 +8,7 @@ using BusinessLogic.Abstractions;
 
 namespace BusinessLogic.Services
 {
-    public class BallService : IBallService
+    public class BallService : IBallService, IDisposable
     {
         public double Width { get; }
         public double Height { get; }
@@ -20,6 +20,9 @@ namespace BusinessLogic.Services
         private readonly object _ballsLock = new object();
 
         private const double TimeStep = 0.1;
+
+        // Dodane pole loggera
+        private readonly BallLogger _logger = new BallLogger();
 
         public BallService(double width, double height)
         {
@@ -82,15 +85,20 @@ namespace BusinessLogic.Services
 
             foreach (var ball in snapshot)
             {
-                lock (_ballsLock) {
+                lock (_ballsLock)
+                {
                     ball.Move(TimeStep);
                     HandleWallCollision(ball);
+                    // Logowanie pozycji po ruchu
+                    if (ball is Ball concreteBall)
+                        _logger.LogBallPosition(concreteBall);
                 }
             }
 
             for (int i = 0; i < snapshot.Count; i++)
             {
-                lock (snapshot[i]) {
+                lock (snapshot[i])
+                {
                     for (int j = i + 1; j < snapshot.Count; j++)
                     {
                         HandleBallPairCollision(snapshot[i], snapshot[j]);
@@ -99,29 +107,39 @@ namespace BusinessLogic.Services
             }
         }
 
-
         private void HandleWallCollision(IBall ball)
         {
+            bool collision = false;
             if (ball.X < 0)
             {
-                ball.X = 0;ddd
+                ball.X = 0;
                 ball.Velocity = new Vector2D { X = Math.Abs(ball.Velocity.X), Y = ball.Velocity.Y };
+                collision = true;
             }
             else if (ball.X + ball.Diameter > Width)
             {
                 ball.X = Width - ball.Diameter;
                 ball.Velocity = new Vector2D { X = -Math.Abs(ball.Velocity.X), Y = ball.Velocity.Y };
+                collision = true;
             }
 
             if (ball.Y < 0)
             {
                 ball.Y = 0;
                 ball.Velocity = new Vector2D { X = ball.Velocity.X, Y = Math.Abs(ball.Velocity.Y) };
+                collision = true;
             }
             else if (ball.Y + ball.Diameter > Height)
             {
                 ball.Y = Height - ball.Diameter;
                 ball.Velocity = new Vector2D { X = ball.Velocity.X, Y = -Math.Abs(ball.Velocity.Y) };
+                collision = true;
+            }
+
+            // Logowanie kolizji ze ścianą
+            if (collision && ball is Ball concreteBall)
+            {
+                _logger.LogCollision($"WALL;X={concreteBall.X:F3};Y={concreteBall.Y:F3};Vx={concreteBall.Velocity.X:F3};Vy={concreteBall.Velocity.Y:F3}");
             }
         }
 
@@ -174,7 +192,19 @@ namespace BusinessLogic.Services
                     ball2.X = c2x - r2;
                     ball2.Y = c2y - r2;
                 }
+
+                // Logowanie kolizji kul
+                if (ball1 is Ball b1 && ball2 is Ball b2)
+                {
+                    _logger.LogCollision($"BALL;B1:X={b1.X:F3},Y={b1.Y:F3},Vx={b1.Velocity.X:F3},Vy={b1.Velocity.Y:F3};B2:X={b2.X:F3},Y={b2.Y:F3},Vx={b2.Velocity.X:F3},Vy={b2.Velocity.Y:F3}");
+                }
             }
+        }
+
+        // Dodaj IDisposable, by zwolnić loggera
+        public void Dispose()
+        {
+            _logger.Dispose();
         }
     }
 }
