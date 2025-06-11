@@ -17,15 +17,25 @@ namespace Data
 
         public BallLogger()
         {
-            // Unikalna nazwa pliku
             _logFilePath = $"ball_log_{Guid.NewGuid():N}.txt";
             _loggingTask = Task.Run(ProcessQueueAsync);
         }
 
+        public void LogBallCreated(Ball ball)
+        {
+            var logEntry = $"{DateTime.UtcNow:O};CREATED;Id={ball.Id};X={ball.X:F3};Y={ball.Y:F3};Vx={ball.Velocity.X:F3};Vy={ball.Velocity.Y:F3}";
+            _logQueue.Enqueue(logEntry);
+        }
+
+        public void LogBallDestroyed(Ball ball)
+        {
+            var logEntry = $"{DateTime.UtcNow:O};DESTROYED;Id={ball.Id};X={ball.X:F3};Y={ball.Y:F3}";
+            _logQueue.Enqueue(logEntry);
+        }
+
         public void LogBallPosition(Ball ball)
         {
-            // Serializacja do tekstu ASCII
-            var logEntry = $"{DateTime.UtcNow:O};X={ball.X:F3};Y={ball.Y:F3};Vx={ball.Velocity.X:F3};Vy={ball.Velocity.Y:F3}";
+            var logEntry = $"{DateTime.UtcNow:O};POSITION;Id={ball.Id};X={ball.X:F3};Y={ball.Y:F3};Vx={ball.Velocity.X:F3};Vy={ball.Velocity.Y:F3}";
             _logQueue.Enqueue(logEntry);
         }
 
@@ -50,12 +60,11 @@ namespace Data
                     }
                     catch (IOException)
                     {
-                        // Jeśli chwilowo nie można pisać, poczekaj i spróbuj ponownie
                         await Task.Delay(50);
-                        _logQueue.Enqueue(entry); // Wstaw z powrotem do kolejki
+                        _logQueue.Enqueue(entry);
                     }
                 }
-                await Task.Delay(100); // Odpoczynek, by nie zjadać CPU
+                await Task.Delay(100);
             }
         }
 

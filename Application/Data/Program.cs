@@ -6,6 +6,8 @@ namespace Data
 {
     public class Ball : IBall
     {
+        private static int _nextId = 0;
+        public int Id { get; }
         private double _x;
         private double _y;
         private Vector2D _velocity;
@@ -74,6 +76,7 @@ namespace Data
 
         public Ball(double x, double y, double diameter, double mass, Vector2D velocity)
         {
+            Id = Interlocked.Increment(ref _nextId);
             _x = x;
             _y = y;
             _diameter = diameter;

@@ -60,6 +60,7 @@ namespace BusinessLogic.Services
                             return dx * dx + dy * dy < minDist * minDist;
                         }))
                         {
+                            _logger.LogBallCreated(ball);
                             list.Add(ball);
                             placed = true;
                         }
@@ -71,6 +72,11 @@ namespace BusinessLogic.Services
 
             lock (_ballsLock)
             {
+                foreach (var ball in _balls)
+                {
+                    if (ball is Ball concreteBall)
+                        _logger.LogBallDestroyed(concreteBall);
+                }
                 _balls.Clear();
                 foreach (var ball in tempGeneratedBalls)
                     _balls.Add(ball);
