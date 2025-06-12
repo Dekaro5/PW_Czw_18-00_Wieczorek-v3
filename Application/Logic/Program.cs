@@ -96,8 +96,9 @@ namespace BusinessLogic.Services
                     ball.Move(TimeStep);
                     HandleWallCollision(ball);
                     // Logowanie pozycji po ruchu
+                    /*
                     if (ball is Ball concreteBall)
-                        _logger.LogBallPosition(concreteBall);
+                        _logger.LogBallPosition(concreteBall);*/
                 }
             }
 
@@ -115,37 +116,37 @@ namespace BusinessLogic.Services
 
         private void HandleWallCollision(IBall ball)
         {
-            bool collision = false;
+            Wall? wall = null;
             if (ball.X < 0)
             {
                 ball.X = 0;
                 ball.Velocity = new Vector2D { X = Math.Abs(ball.Velocity.X), Y = ball.Velocity.Y };
-                collision = true;
+                wall = Wall.Left;
             }
             else if (ball.X + ball.Diameter > Width)
             {
                 ball.X = Width - ball.Diameter;
                 ball.Velocity = new Vector2D { X = -Math.Abs(ball.Velocity.X), Y = ball.Velocity.Y };
-                collision = true;
+                wall = Wall.Right;
             }
 
             if (ball.Y < 0)
             {
                 ball.Y = 0;
                 ball.Velocity = new Vector2D { X = ball.Velocity.X, Y = Math.Abs(ball.Velocity.Y) };
-                collision = true;
+                wall = Wall.Top;
             }
             else if (ball.Y + ball.Diameter > Height)
             {
                 ball.Y = Height - ball.Diameter;
                 ball.Velocity = new Vector2D { X = ball.Velocity.X, Y = -Math.Abs(ball.Velocity.Y) };
-                collision = true;
+                wall = Wall.Bottom;
             }
 
             // Logowanie kolizji ze ścianą
-            if (collision && ball is Ball concreteBall)
+            if (wall.HasValue && ball is Ball concreteBall)
             {
-                _logger.LogCollision($"WALL;X={concreteBall.X:F3};Y={concreteBall.Y:F3};Vx={concreteBall.Velocity.X:F3};Vy={concreteBall.Velocity.Y:F3}");
+                _logger.LogWallCollision(concreteBall, wall.Value);
             }
         }
 
@@ -202,7 +203,7 @@ namespace BusinessLogic.Services
                 // Logowanie kolizji kul
                 if (ball1 is Ball b1 && ball2 is Ball b2)
                 {
-                    _logger.LogCollision($"BALL;B1:X={b1.X:F3},Y={b1.Y:F3},Vx={b1.Velocity.X:F3},Vy={b1.Velocity.Y:F3};B2:X={b2.X:F3},Y={b2.Y:F3},Vx={b2.Velocity.X:F3},Vy={b2.Velocity.Y:F3}");
+                    _logger.LogBallToBallCollision(b1, b2);
                 }
             }
         }

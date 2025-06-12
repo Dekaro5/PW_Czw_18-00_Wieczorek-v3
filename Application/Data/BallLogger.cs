@@ -7,6 +7,14 @@ using System.Threading.Tasks;
 
 namespace Data
 {
+    public enum Wall
+    {
+        Left,
+        Right,
+        Top,
+        Bottom
+    }
+
     public class BallLogger : IDisposable
     {
         private readonly ConcurrentQueue<string> _logQueue = new();
@@ -39,12 +47,19 @@ namespace Data
             _logQueue.Enqueue(logEntry);
         }
 
-        public void LogCollision(string info)
+        public void LogWallCollision(Ball ball, Wall wall)
         {
-            var logEntry = $"{DateTime.UtcNow:O};COLLISION;{info}";
+            var logEntry = $"{DateTime.UtcNow:O};WALL_COLLISION;Id={ball.Id};Wall={wall};X={ball.X:F3};Y={ball.Y:F3};Vx={ball.Velocity.X:F3};Vy={ball.Velocity.Y:F3}";
             _logQueue.Enqueue(logEntry);
         }
 
+        public void LogBallToBallCollision(Ball ball1, Ball ball2)
+        {
+            var logEntry = $"{DateTime.UtcNow:O};BALL_COLLISION;" +
+                           $"Id1={ball1.Id};X1={ball1.X:F3};Y1={ball1.Y:F3};Vx1={ball1.Velocity.X:F3};Vy1={ball1.Velocity.Y:F3};" +
+                           $"Id2={ball2.Id};X2={ball2.X:F3};Y2={ball2.Y:F3};Vx2={ball2.Velocity.X:F3};Vy2={ball2.Velocity.Y:F3}";
+            _logQueue.Enqueue(logEntry);
+        }
         private async Task ProcessQueueAsync()
         {
             while (!_cts.IsCancellationRequested)
